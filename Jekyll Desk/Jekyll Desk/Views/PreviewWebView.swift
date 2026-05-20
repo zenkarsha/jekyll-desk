@@ -11,12 +11,17 @@ struct PreviewWebView: View {
     @State private var goForwardRequestID = UUID()
     @State private var animatesProgressIcon = false
     @State private var isWaitingForPreviewHTMLLoad = false
+    @State private var hasPendingPreviewUpdate = false
+    @State private var wasPreviewBuildInProgress = false
 
     var body: some View {
         VStack(spacing: 0) {
             header
             ZStack {
                 bodyView
+                if hasPendingPreviewUpdate {
+                    pendingPreviewUpdateOverlay
+                }
                 if showsPreviewProgressOverlay {
                     previewProgressOverlay
                 }
@@ -48,14 +53,29 @@ struct PreviewWebView: View {
         }
         .onChange(of: appVM.previewRefreshID) { _, _ in
             isWaitingForPreviewHTMLLoad = true
+            hasPendingPreviewUpdate = false
             syncPreviewURL()
         }
         .onChange(of: appVM.serverVM.buildActivity) { _, activity in
             switch activity {
             case .saving, .building:
+                wasPreviewBuildInProgress = true
                 isWaitingForPreviewHTMLLoad = true
             case .idle:
-                break
+                guard wasPreviewBuildInProgress else { return }
+                wasPreviewBuildInProgress = false
+                if appVM.autoRefresh {
+                    hasPendingPreviewUpdate = false
+                } else {
+                    isWaitingForPreviewHTMLLoad = false
+                    hasPendingPreviewUpdate = appVM.serverVM.state == .running
+                }
+            }
+        }
+        .onChange(of: appVM.autoRefresh) { _, enabled in
+            if !enabled, isWaitingForPreviewHTMLLoad {
+                isWaitingForPreviewHTMLLoad = false
+                hasPendingPreviewUpdate = appVM.serverVM.state == .running && hasEditablePost
             }
         }
     }
@@ -97,7 +117,7 @@ struct PreviewWebView: View {
                 goForwardRequestID = UUID()
             }
             IconButton(systemName: "arrow.clockwise", hoverBackgroundColor: Color.black.opacity(0.06)) {
-                appVM.reloadPreview()
+                refreshPreview()
             }
             addressBar
             IconButton(systemName: "arrow.up.forward.app", iconSize: 17, hoverBackgroundColor: Color.black.opacity(0.06)) {
@@ -109,7 +129,7 @@ struct PreviewWebView: View {
     }
 
     private var addressBar: some View {
-        Text(effectiveURLText)
+        Text(displayURLText)
             .font(.system(size: 13))
             .foregroundStyle(urlText.isEmpty ? Color.secondaryText.opacity(0.68) : Color.primaryText)
             .lineLimit(1)
@@ -157,7 +177,7 @@ struct PreviewWebView: View {
                     secondary: nil
                 ) {
                     appVM.serverVM.toggle(project: appVM.projectVM.selectedProject)
-                    appVM.reloadPreview()
+                    refreshPreview()
                 }
             case .failed(let message):
                 emptyState(
@@ -168,7 +188,7 @@ struct PreviewWebView: View {
                     secondary: nil
                 ) {
                     appVM.serverVM.toggle(project: appVM.projectVM.selectedProject)
-                    appVM.reloadPreview()
+                    refreshPreview()
                 }
             case .running:
                 WebView(
@@ -182,6 +202,7 @@ struct PreviewWebView: View {
                     fallbackHTML: previewHTML,
                     onLoadFinished: {
                         isWaitingForPreviewHTMLLoad = false
+                        hasPendingPreviewUpdate = false
                     }
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -210,6 +231,48 @@ struct PreviewWebView: View {
         case .idle:
             return appVM.serverVM.state == .running && isWaitingForPreviewHTMLLoad
         }
+    }
+
+    private var pendingPreviewUpdateOverlay: some View {
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .opacity(0.32)
+                .background(Color.white.opacity(0.54))
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    refreshPreview()
+                }
+
+            VStack(spacing: 14) {
+                Image(systemName: "arrow.clockwise.circle")
+                    .font(.system(size: 42, weight: .semibold))
+
+                VStack(spacing: 4) {
+                    Text("Preview update available")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Click to update preview")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.secondaryText)
+                }
+
+                Button {
+                    refreshPreview()
+                } label: {
+                    Label("Update Preview", systemImage: "arrow.clockwise")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .frame(width: 154, height: 34)
+                        .background(Color.appBlue)
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .shadow(color: Color.appBlue.opacity(0.18), radius: 8, y: 2)
+                }
+                .buttonStyle(.plain)
+            }
+            .foregroundStyle(Color.secondaryText)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .transition(.opacity)
     }
 
     private var previewProgressOverlay: some View {
@@ -266,6 +329,9 @@ struct PreviewWebView: View {
 
         switch appVM.serverVM.state {
         case .running:
+            if hasPendingPreviewUpdate {
+                return "Preview update available"
+            }
             return "Reloaded just now"
         case .failed:
             return "Preview unavailable"
@@ -288,6 +354,9 @@ struct PreviewWebView: View {
 
         switch appVM.serverVM.state {
         case .running:
+            if hasPendingPreviewUpdate {
+                return "arrow.clockwise.circle"
+            }
             return "checkmark.circle"
         case .failed:
             return "xmark.circle"
@@ -308,6 +377,9 @@ struct PreviewWebView: View {
 
         switch appVM.serverVM.state {
         case .running:
+            if hasPendingPreviewUpdate {
+                return .secondaryText
+            }
             return .appGreen
         case .failed:
             return .appRed
@@ -419,6 +491,11 @@ struct PreviewWebView: View {
         urlText.isEmpty ? previewPlaceholderURL : urlText
     }
 
+    private var displayURLText: String {
+        let text = webViewURLText.isEmpty ? effectiveURLText : webViewURLText
+        return text.removingPercentEncoding ?? text
+    }
+
     private var previewPlaceholderURL: String {
         appVM.projectVM.selectedProject?.previewBaseURL ?? "http://127.0.0.1:4000"
     }
@@ -431,135 +508,10 @@ struct PreviewWebView: View {
         appVM.editorVM.filepath != nil || !appVM.editorVM.markdownContent.isEmpty
     }
 
-    private func previewURLString(for project: Project) -> String {
-        appVM.previewURLString ?? project.previewBaseURL
-    }
-}
-
-struct PreviewMockPageView: View {
-    @ObservedObject var appVM: AppViewModel
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                HStack {
-                    Text("My Jekyll Blog")
-                        .font(.system(size: 22, weight: .semibold))
-                    Spacer()
-                    HStack(spacing: 24) {
-                        Text("Home")
-                        Text("About")
-                        Text("Archive")
-                    }
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.secondaryText)
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 18)
-                .overlay(alignment: .bottom) { Divider() }
-
-                VStack(alignment: .leading, spacing: 18) {
-                    Text(appVM.editorVM.title)
-                        .font(.system(size: 38, weight: .bold))
-                        .foregroundStyle(Color.primaryText)
-                        .padding(.top, 12)
-
-                    HStack(spacing: 22) {
-                        Label("May 16, 2026", systemImage: "calendar")
-                        Label(appVM.editorVM.category, systemImage: "folder")
-                        Label(appVM.editorVM.tags.joined(separator: ", "), systemImage: "tag")
-                    }
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.secondaryText)
-
-                    Text("Welcome to my video post! In this post, I’m sharing one of my favorite tracks from my playlist.")
-                        .font(.system(size: 15))
-                        .lineSpacing(4)
-                        .foregroundStyle(Color.primaryText)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("What you’ll find in this post")
-                            .font(.system(size: 18, weight: .bold))
-                        bullet("One great music video")
-                        bullet("Perfect for your playlist")
-                        bullet("Enjoy and share the vibes ♫")
-                    }
-
-                    Text(appVM.editorVM.videoIDs.filter { !$0.isEmpty }.count > 1 ? "Videos" : "Video")
-                        .font(.system(size: 20, weight: .bold))
-                        .padding(.top, 4)
-
-                    ForEach(appVM.editorVM.videoIDs.filter { !$0.isEmpty }, id: \.self) { id in
-                        youtubeCard(id: id)
-                    }
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 32)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .background(Color.white)
-    }
-
-    private func bullet(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Text("•")
-            Text(text)
-        }
-        .font(.system(size: 14))
-        .foregroundStyle(Color.primaryText)
-    }
-
-    private func youtubeCard(id: String) -> some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.20, green: 0.16, blue: 0.18),
-                    Color(red: 0.42, green: 0.32, blue: 0.38),
-                    Color(red: 0.12, green: 0.13, blue: 0.16)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            VStack {
-                HStack {
-                    Circle()
-                        .fill(Color.appGreen)
-                        .frame(width: 26, height: 26)
-                    Text(id == "9bZkp7q19f0" ? "PSY - GANGNAM STYLE(강남스타일) M/V" : "Rick Astley - Never Gonna Give You Up (...")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                    Spacer()
-                    Image(systemName: "ellipsis")
-                        .foregroundStyle(.white)
-                }
-                .padding(12)
-                Spacer()
-                HStack {
-                    Spacer()
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 30))
-                        .foregroundStyle(.white)
-                        .frame(width: 70, height: 48)
-                        .background(Color.black.opacity(0.55))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                    Spacer()
-                }
-                Spacer()
-                HStack {
-                    Spacer()
-                    Text("YouTube")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(12)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(16 / 9, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black.opacity(0.08)))
+    private func refreshPreview() {
+        hasPendingPreviewUpdate = false
+        isWaitingForPreviewHTMLLoad = true
+        appVM.reloadPreview()
     }
 }
 
@@ -748,7 +700,8 @@ struct WebView: NSViewRepresentable {
             if components.queryItems?.isEmpty == true {
                 components.queryItems = nil
             }
-            return components.url?.absoluteString ?? url.absoluteString
+            let text = components.url?.absoluteString ?? url.absoluteString
+            return text.removingPercentEncoding ?? text
         }
     }
 }

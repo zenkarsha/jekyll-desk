@@ -2,20 +2,8 @@ import SwiftUI
 
 struct SettingsPanelView: View {
     @ObservedObject var appVM: AppViewModel
-    @State private var theme = "Light"
-    @State private var autoSave = true
-    @State private var autoSaveInterval = "30 sec"
-    @State private var previewMode = "Live Preview"
-    @State private var mathRendering = true
-    @State private var frontMatterHelper = true
-    @State private var yamlValidation = true
-    @State private var autoGenerateKey = true
-    @State private var keyFormat = "{DATE}_{CATEGORY}_{TITLE}"
-    @State private var dateFormat = "YYYY-MM-DD"
-    @State private var slugTransform = "kebab-case"
     @State private var serveCommand = "bundle exec jekyll serve"
     @State private var autoStart = false
-    @State private var stopOnClose = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,11 +27,6 @@ struct SettingsPanelView: View {
                     picker("Tab Size", selection: editorTabSizeSelection, values: ["2", "4"])
                     settingToggle("Word Wrap", subtitle: "Wrap long lines in the editor", isOn: $appVM.editorVM.wordWrap)
                     settingToggle("Show Line Numbers", subtitle: "Display line numbers in the editor", isOn: $appVM.editorVM.lineNumbers)
-                }
-
-                group("FRONT MATTER") {
-                    settingToggle("Show Front Matter Helper", subtitle: "Show helper panel for front matter fields", isOn: $frontMatterHelper)
-                    settingToggle("Enable YAML Validation", subtitle: "Validate YAML syntax in front matter", isOn: $yamlValidation)
                 }
 
                 group("JEKYLL SERVE", showsDivider: false) {

@@ -15,7 +15,6 @@ final class EditorViewModel: ObservableObject {
     @Published var filename: String = "Untitled.md"
     @Published var filepath: String?
     @Published var isSaved = true
-    @Published var cursorStatus = "Ln 1, Col 1"
     @Published var layoutMode: EditorLayoutMode = .editorAndPreview
     @Published var wordWrap = true
     @Published var lineNumbers = true
@@ -183,6 +182,8 @@ final class EditorViewModel: ObservableObject {
     }
 
     func resetPost(resetForm: Bool = false) {
+        saveTask?.cancel()
+        frontMatterTask?.cancel()
         filepath = nil
         lastSavedURL = nil
         markdownContent = ""

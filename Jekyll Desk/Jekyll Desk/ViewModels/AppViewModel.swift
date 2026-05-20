@@ -7,19 +7,24 @@ final class AppViewModel: ObservableObject {
     @Published var projectVM = ProjectViewModel()
     @Published var editorVM = EditorViewModel()
     @Published var serverVM = JekyllServerViewModel()
-    @Published var autoRefresh = true
+    @Published var autoRefresh: Bool {
+        didSet {
+            UserDefaults.standard.set(autoRefresh, forKey: Self.autoRefreshDefaultsKey)
+        }
+    }
     @Published var showSettings = false
     @Published var showNewTemplate = false
     @Published var editingTemplate: FrontMatterTemplate?
     @Published var previewRefreshID = UUID()
     @Published private(set) var previewURLString: String?
-    @Published var currentTime = Date()
 
     private let buildService = JekyllBuildService()
     private var cancellables: Set<AnyCancellable> = []
     private var explicitBuildTask: Task<Void, Never>?
 
     init() {
+        autoRefresh = UserDefaults.standard.object(forKey: Self.autoRefreshDefaultsKey) as? Bool ?? true
+
         projectVM.objectWillChange
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
@@ -79,6 +84,8 @@ final class AppViewModel: ObservableObject {
 
         selectDefaultTemplateForCurrentProject()
     }
+
+    private static let autoRefreshDefaultsKey = "JekyllDesk.autoRefresh"
 
     func reloadPreview() {
         syncPreviewURL()
@@ -154,21 +161,19 @@ final class AppViewModel: ObservableObject {
     }
 
     func selectProject(_ project: Project) {
+        guard project.id != projectVM.selectedProject?.id else { return }
         projectVM.select(project)
-        editorVM.resetPost()
-        selectDefaultTemplateForCurrentProject()
+        resetWorkspaceForProjectChange()
     }
 
     func addProjectWithOpenPanel() {
         guard projectVM.addProjectWithOpenPanel() else { return }
-        editorVM.resetPost()
-        selectDefaultTemplateForCurrentProject()
+        resetWorkspaceForProjectChange()
     }
 
     func removeSelectedProject() {
         projectVM.removeSelectedProject()
-        editorVM.resetPost()
-        selectDefaultTemplateForCurrentProject()
+        resetWorkspaceForProjectChange()
     }
 
     func setDefaultTemplate(_ template: FrontMatterTemplate) {
@@ -208,6 +213,15 @@ final class AppViewModel: ObservableObject {
     private func selectDefaultTemplateForCurrentProject() {
         guard let template = projectVM.selectedProject?.defaultTemplate else { return }
         editorVM.selectTemplate(template)
+    }
+
+    private func resetWorkspaceForProjectChange() {
+        explicitBuildTask?.cancel()
+        serverVM.resetForProjectChange()
+        previewURLString = nil
+        previewRefreshID = UUID()
+        editorVM.resetPost(resetForm: true)
+        selectDefaultTemplateForCurrentProject()
     }
 
     private func expectedPreviewOutputURL(sourceURL: URL) -> URL? {

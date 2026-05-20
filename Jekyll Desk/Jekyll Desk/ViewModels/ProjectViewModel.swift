@@ -44,14 +44,6 @@ final class ProjectViewModel: ObservableObject {
         return true
     }
 
-    func duplicateSelectedProject() {
-        guard var project = selectedProject else { return }
-        project.id = UUID()
-        project.name += " Copy"
-        projects.append(project)
-        save()
-    }
-
     func removeSelectedProject() {
         guard let selectedProject else { return }
         projects.removeAll { $0.id == selectedProject.id }

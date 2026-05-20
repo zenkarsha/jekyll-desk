@@ -19,13 +19,6 @@ enum MarkdownFileService {
         return url
     }
 
-    static func duplicate(post: Post) throws -> URL {
-        let url = URL(fileURLWithPath: post.filepath)
-        let copy = url.deletingLastPathComponent().appendingPathComponent(url.deletingPathExtension().lastPathComponent + "-copy.md")
-        try FileManager.default.copyItem(at: url, to: copy)
-        return copy
-    }
-
     static func rename(post: Post, to filename: String) throws -> URL {
         let sourceURL = URL(fileURLWithPath: post.filepath)
         let sanitizedFilename = normalizedMarkdownFilename(filename)

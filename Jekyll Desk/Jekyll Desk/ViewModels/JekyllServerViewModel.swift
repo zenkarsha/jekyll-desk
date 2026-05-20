@@ -205,6 +205,13 @@ final class JekyllServerViewModel: ObservableObject {
         buildActivity = .idle
     }
 
+    func resetForProjectChange() {
+        stop()
+        log = ""
+        lastBuild = nil
+        lastBuildDate = nil
+    }
+
     func markSaving() {
         guard state == .running else { return }
         buildActivity = .saving
@@ -213,10 +220,6 @@ final class JekyllServerViewModel: ObservableObject {
     func markBuildPending() {
         guard state == .running else { return }
         buildActivity = .building
-    }
-
-    func finishPendingBuild() {
-        buildActivity = .idle
     }
 
     func finishExplicitBuild(output: String) {

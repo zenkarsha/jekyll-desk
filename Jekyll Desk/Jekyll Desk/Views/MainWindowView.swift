@@ -35,12 +35,12 @@ struct MainWindowView: View {
         .foregroundStyle(Color.primaryText)
         .preferredColorScheme(.light)
         .frame(minWidth: 1320, minHeight: 820)
-        .overlay(alignment: .trailing) {
+        .overlay(alignment: .bottomTrailing) {
             if appVM.showSettings {
                 SettingsPanelView(appVM: appVM)
                     .frame(width: 560)
                     .padding(.trailing, 28)
-                    .padding(.top, 180)
+                    .padding(.bottom, 42)
                     .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }

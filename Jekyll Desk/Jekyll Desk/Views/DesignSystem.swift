@@ -98,17 +98,6 @@ struct Pill: View {
     }
 }
 
-struct RoundedPanel<Content: View>: View {
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        content
-            .background(Color.panelBackground)
-            .overlay(RoundedRectangle(cornerRadius: 7).stroke(Color.appBorder))
-            .clipShape(RoundedRectangle(cornerRadius: 7))
-    }
-}
-
 struct AppSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     var width: CGFloat = 106

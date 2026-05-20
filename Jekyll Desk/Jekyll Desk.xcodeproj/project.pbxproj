@@ -1,0 +1,546 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		AF10B0232FB8607F00B01CD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF10B00C2FB8607E00B01CD4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF10B0132FB8607E00B01CD4;
+			remoteInfo = "Jekyll Desk";
+		};
+		AF10B02D2FB8607F00B01CD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF10B00C2FB8607E00B01CD4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF10B0132FB8607E00B01CD4;
+			remoteInfo = "Jekyll Desk";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AF10B0142FB8607E00B01CD4 /* Jekyll Desk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Jekyll Desk.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF10B0222FB8607F00B01CD4 /* Jekyll DeskTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Jekyll DeskTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF10B02C2FB8607F00B01CD4 /* Jekyll DeskUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Jekyll DeskUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AF10B0162FB8607E00B01CD4 /* Jekyll Desk */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Jekyll Desk";
+			sourceTree = "<group>";
+		};
+		AF10B0252FB8607F00B01CD4 /* Jekyll DeskTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Jekyll DeskTests";
+			sourceTree = "<group>";
+		};
+		AF10B02F2FB8607F00B01CD4 /* Jekyll DeskUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Jekyll DeskUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AF10B0112FB8607E00B01CD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B01F2FB8607F00B01CD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B0292FB8607F00B01CD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AF10B00B2FB8607E00B01CD4 = {
+			isa = PBXGroup;
+			children = (
+				AF10B0162FB8607E00B01CD4 /* Jekyll Desk */,
+				AF10B0252FB8607F00B01CD4 /* Jekyll DeskTests */,
+				AF10B02F2FB8607F00B01CD4 /* Jekyll DeskUITests */,
+				AF10B0152FB8607E00B01CD4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AF10B0152FB8607E00B01CD4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AF10B0142FB8607E00B01CD4 /* Jekyll Desk.app */,
+				AF10B0222FB8607F00B01CD4 /* Jekyll DeskTests.xctest */,
+				AF10B02C2FB8607F00B01CD4 /* Jekyll DeskUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AF10B0132FB8607E00B01CD4 /* Jekyll Desk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF10B0362FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll Desk" */;
+			buildPhases = (
+				AF10B0102FB8607E00B01CD4 /* Sources */,
+				AF10B0112FB8607E00B01CD4 /* Frameworks */,
+				AF10B0122FB8607E00B01CD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AF10B0162FB8607E00B01CD4 /* Jekyll Desk */,
+			);
+			name = "Jekyll Desk";
+			packageProductDependencies = (
+			);
+			productName = "Jekyll Desk";
+			productReference = AF10B0142FB8607E00B01CD4 /* Jekyll Desk.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AF10B0212FB8607F00B01CD4 /* Jekyll DeskTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF10B0392FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll DeskTests" */;
+			buildPhases = (
+				AF10B01E2FB8607F00B01CD4 /* Sources */,
+				AF10B01F2FB8607F00B01CD4 /* Frameworks */,
+				AF10B0202FB8607F00B01CD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AF10B0242FB8607F00B01CD4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AF10B0252FB8607F00B01CD4 /* Jekyll DeskTests */,
+			);
+			name = "Jekyll DeskTests";
+			packageProductDependencies = (
+			);
+			productName = "Jekyll DeskTests";
+			productReference = AF10B0222FB8607F00B01CD4 /* Jekyll DeskTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AF10B02B2FB8607F00B01CD4 /* Jekyll DeskUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF10B03C2FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll DeskUITests" */;
+			buildPhases = (
+				AF10B0282FB8607F00B01CD4 /* Sources */,
+				AF10B0292FB8607F00B01CD4 /* Frameworks */,
+				AF10B02A2FB8607F00B01CD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AF10B02E2FB8607F00B01CD4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AF10B02F2FB8607F00B01CD4 /* Jekyll DeskUITests */,
+			);
+			name = "Jekyll DeskUITests";
+			packageProductDependencies = (
+			);
+			productName = "Jekyll DeskUITests";
+			productReference = AF10B02C2FB8607F00B01CD4 /* Jekyll DeskUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AF10B00C2FB8607E00B01CD4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					AF10B0132FB8607E00B01CD4 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					AF10B0212FB8607F00B01CD4 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AF10B0132FB8607E00B01CD4;
+					};
+					AF10B02B2FB8607F00B01CD4 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AF10B0132FB8607E00B01CD4;
+					};
+				};
+			};
+			buildConfigurationList = AF10B00F2FB8607E00B01CD4 /* Build configuration list for PBXProject "Jekyll Desk" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AF10B00B2FB8607E00B01CD4;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AF10B0152FB8607E00B01CD4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AF10B0132FB8607E00B01CD4 /* Jekyll Desk */,
+				AF10B0212FB8607F00B01CD4 /* Jekyll DeskTests */,
+				AF10B02B2FB8607F00B01CD4 /* Jekyll DeskUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AF10B0122FB8607E00B01CD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B0202FB8607F00B01CD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B02A2FB8607F00B01CD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AF10B0102FB8607E00B01CD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B01E2FB8607F00B01CD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF10B0282FB8607F00B01CD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AF10B0242FB8607F00B01CD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF10B0132FB8607E00B01CD4 /* Jekyll Desk */;
+			targetProxy = AF10B0232FB8607F00B01CD4 /* PBXContainerItemProxy */;
+		};
+		AF10B02E2FB8607F00B01CD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF10B0132FB8607E00B01CD4 /* Jekyll Desk */;
+			targetProxy = AF10B02D2FB8607F00B01CD4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AF10B0342FB8607F00B01CD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AF10B0352FB8607F00B01CD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		AF10B0372FB8607F00B01CD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Jekyll Desk/Jekyll_Desk.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-Desk";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AF10B0382FB8607F00B01CD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Jekyll Desk/Jekyll_Desk.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-Desk";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AF10B03A2FB8607F00B01CD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-DeskTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Jekyll Desk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Jekyll Desk";
+			};
+			name = Debug;
+		};
+		AF10B03B2FB8607F00B01CD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-DeskTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Jekyll Desk.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Jekyll Desk";
+			};
+			name = Release;
+		};
+		AF10B03D2FB8607F00B01CD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-DeskUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Jekyll Desk";
+			};
+			name = Debug;
+		};
+		AF10B03E2FB8607F00B01CD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "zenkarsha.Jekyll-DeskUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Jekyll Desk";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AF10B00F2FB8607E00B01CD4 /* Build configuration list for PBXProject "Jekyll Desk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF10B0342FB8607F00B01CD4 /* Debug */,
+				AF10B0352FB8607F00B01CD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF10B0362FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll Desk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF10B0372FB8607F00B01CD4 /* Debug */,
+				AF10B0382FB8607F00B01CD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF10B0392FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll DeskTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF10B03A2FB8607F00B01CD4 /* Debug */,
+				AF10B03B2FB8607F00B01CD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF10B03C2FB8607F00B01CD4 /* Build configuration list for PBXNativeTarget "Jekyll DeskUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF10B03D2FB8607F00B01CD4 /* Debug */,
+				AF10B03E2FB8607F00B01CD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AF10B00C2FB8607E00B01CD4 /* Project object */;
+}

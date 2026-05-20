@@ -8,6 +8,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
     var postTitle: String
     var postDate: String
     var wordWrap: Bool
+    var showsLineNumbers: Bool
     var fontSize: CGFloat
     var tabSize: Int
     var onChange: (String) -> Void
@@ -19,6 +20,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = MarkdownScrollView()
         scrollView.drawsBackground = false
+        scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = !wordWrap
 
@@ -38,12 +40,14 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         textView.imageDropHandler = { [weak coordinator = context.coordinator] textView, sender in
             coordinator?.handleImageDrop(in: textView, sender: sender) ?? false
         }
-        applyEditorSettings(to: textView, in: scrollView)
 
         scrollView.documentView = textView
+        configureLineNumberRuler(for: scrollView, textView: textView)
+        applyEditorSettings(to: textView, in: scrollView)
         scrollView.onLayout = { [weak textView, weak scrollView] in
             guard let textView, let scrollView else { return }
             context.coordinator.parent.applyEditorSettings(to: textView, in: scrollView)
+            context.coordinator.parent.invalidateLineNumberRuler(in: scrollView)
         }
         context.coordinator.applyHighlighting(to: textView, text: text)
         return scrollView
@@ -57,10 +61,12 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
                 coordinator?.handleImageDrop(in: textView, sender: sender) ?? false
             }
         }
+        configureLineNumberRuler(for: scrollView, textView: textView)
         applyEditorSettings(to: textView, in: scrollView)
         if textView.string != text || context.coordinator.appliedFontSize != fontSize || context.coordinator.appliedTabSize != tabSize {
             context.coordinator.applyHighlighting(to: textView, text: text)
         }
+        invalidateLineNumberRuler(in: scrollView)
     }
 
     private func applyEditorSettings(to textView: NSTextView, in scrollView: NSScrollView) {
@@ -80,7 +86,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         textView.autoresizingMask = enabled ? [.width] : []
 
         if enabled {
-            let editorWidth = max(1, scrollView.contentView.bounds.width)
+            let editorWidth = availableEditorWidth(in: scrollView)
             let wrapWidth = max(1, editorWidth - (textView.textContainerInset.width * 2))
             textView.frame.size.width = editorWidth
             textContainer.containerSize = NSSize(
@@ -92,11 +98,12 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
                 height: CGFloat.greatestFiniteMagnitude
             )
         } else {
+            let editorWidth = availableEditorWidth(in: scrollView)
             textContainer.containerSize = NSSize(
                 width: CGFloat.greatestFiniteMagnitude,
                 height: CGFloat.greatestFiniteMagnitude
             )
-            textView.frame.size.width = max(scrollView.contentView.bounds.width, textView.intrinsicContentSize.width)
+            textView.frame.size.width = max(editorWidth, textView.intrinsicContentSize.width)
             textView.maxSize = NSSize(
                 width: CGFloat.greatestFiniteMagnitude,
                 height: CGFloat.greatestFiniteMagnitude
@@ -105,6 +112,55 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         textContainer.size = textContainer.containerSize
         textView.layoutManager?.ensureLayout(for: textContainer)
         textView.needsDisplay = true
+    }
+
+    private func availableEditorWidth(in scrollView: NSScrollView) -> CGFloat {
+        var width = scrollView.contentView.bounds.width
+
+        if
+            showsLineNumbers,
+            scrollView.hasVerticalRuler,
+            scrollView.rulersVisible,
+            let ruler = scrollView.verticalRulerView
+        {
+            let rulerWidth = ruler.ruleThickness
+            let contentStartsAfterRuler = scrollView.contentView.frame.minX >= rulerWidth - 1
+            if !contentStartsAfterRuler {
+                width -= rulerWidth
+            }
+        }
+
+        return max(1, width)
+    }
+
+    private func configureLineNumberRuler(for scrollView: NSScrollView, textView: NSTextView) {
+        scrollView.contentView.postsBoundsChangedNotifications = true
+        guard showsLineNumbers else {
+            scrollView.hasVerticalRuler = false
+            scrollView.rulersVisible = false
+            scrollView.verticalRulerView = nil
+            return
+        }
+
+        let ruler: MarkdownLineNumberRulerView
+        if let existingRuler = scrollView.verticalRulerView as? MarkdownLineNumberRulerView {
+            ruler = existingRuler
+        } else {
+            ruler = MarkdownLineNumberRulerView(scrollView: scrollView, orientation: .verticalRuler)
+            scrollView.verticalRulerView = ruler
+        }
+
+        ruler.clientView = textView
+        ruler.textView = textView
+        ruler.fontSize = fontSize
+        ruler.ruleThickness = 44
+        scrollView.hasVerticalRuler = true
+        scrollView.rulersVisible = true
+        ruler.needsDisplay = true
+    }
+
+    private func invalidateLineNumberRuler(in scrollView: NSScrollView) {
+        (scrollView.verticalRulerView as? MarkdownLineNumberRulerView)?.needsDisplay = true
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
@@ -122,6 +178,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
             parent.text = textView.string
             parent.onChange(textView.string)
             applyHighlighting(to: textView, text: textView.string)
+            textView.enclosingScrollView?.verticalRulerView?.needsDisplay = true
         }
 
         func handleImageDrop(in textView: NSTextView, sender: NSDraggingInfo) -> Bool {
@@ -185,6 +242,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
             appliedFontSize = parent.fontSize
             appliedTabSize = parent.tabSize
             isApplying = false
+            textView.enclosingScrollView?.verticalRulerView?.needsDisplay = true
         }
 
         private func apply(pattern: String, color: NSColor, text: String, attributed: NSMutableAttributedString) {
@@ -239,9 +297,143 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
 private final class MarkdownScrollView: NSScrollView {
     var onLayout: (() -> Void)?
 
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer?.masksToBounds = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func layout() {
         super.layout()
+        layer?.masksToBounds = true
         onLayout?()
+    }
+
+    override func reflectScrolledClipView(_ clipView: NSClipView) {
+        super.reflectScrolledClipView(clipView)
+        verticalRulerView?.needsDisplay = true
+    }
+}
+
+private final class MarkdownLineNumberRulerView: NSRulerView {
+    weak var textView: NSTextView?
+    var fontSize: CGFloat = 13
+
+    private var rulerBackgroundColor: NSColor {
+        NSColor(red: 0.949, green: 0.957, blue: 0.969, alpha: 1)
+    }
+
+    private var textColor: NSColor {
+        NSColor.secondaryLabelColor
+    }
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override func drawHashMarksAndLabels(in rect: NSRect) {
+        guard
+            let textView,
+            let layoutManager = textView.layoutManager,
+            let textContainer = textView.textContainer
+        else { return }
+
+        rulerBackgroundColor.setFill()
+        bounds.fill()
+
+        layoutManager.ensureLayout(for: textContainer)
+
+        let visibleRect = textView.visibleRect
+        let textOrigin = textView.textContainerOrigin
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: max(11, fontSize - 1), weight: .regular),
+            .foregroundColor: textColor
+        ]
+        let lineStarts = lineStartIndexes(in: textView.string)
+
+        for (index, lineStart) in lineStarts.enumerated() {
+            guard let lineY = yPosition(forCharacterAt: lineStart, layoutManager: layoutManager, textView: textView, textContainer: textContainer) else {
+                continue
+            }
+
+            let y = lineY + textOrigin.y - visibleRect.minY
+            if y < rect.minY - 24 || y > rect.maxY + 24 {
+                continue
+            }
+
+            let label = "\(index + 1)" as NSString
+            let labelSize = label.size(withAttributes: attributes)
+            let labelRect = NSRect(
+                x: bounds.width - labelSize.width - 10,
+                y: y + ((lineHeight(for: lineStart, layoutManager: layoutManager) - labelSize.height) / 2),
+                width: labelSize.width,
+                height: labelSize.height
+            )
+            label.draw(in: labelRect, withAttributes: attributes)
+        }
+    }
+
+    private func lineStartIndexes(in text: String) -> [Int] {
+        let nsText = text as NSString
+        guard nsText.length > 0 else { return [0] }
+
+        var starts = [0]
+        var searchLocation = 0
+        while searchLocation < nsText.length {
+            let range = nsText.range(of: "\n", options: [], range: NSRange(location: searchLocation, length: nsText.length - searchLocation))
+            guard range.location != NSNotFound else { break }
+
+            let nextStart = range.location + range.length
+            starts.append(nextStart)
+            searchLocation = nextStart
+        }
+        return starts
+    }
+
+    private func yPosition(
+        forCharacterAt characterIndex: Int,
+        layoutManager: NSLayoutManager,
+        textView: NSTextView,
+        textContainer: NSTextContainer
+    ) -> CGFloat? {
+        let characterCount = (textView.string as NSString).length
+        guard characterCount > 0 else {
+            return layoutManager.extraLineFragmentRect.minY
+        }
+
+        if characterIndex >= characterCount {
+            let extraLineRect = layoutManager.extraLineFragmentRect
+            if !extraLineRect.isEmpty {
+                return extraLineRect.minY
+            }
+            return nil
+        }
+
+        let glyphIndex = layoutManager.glyphIndexForCharacter(at: characterIndex)
+        return layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil).minY
+    }
+
+    private func lineHeight(
+        for characterIndex: Int,
+        layoutManager: NSLayoutManager
+    ) -> CGFloat {
+        let fallbackHeight = fontSize + 5
+        let characterCount = layoutManager.textStorage?.length ?? 0
+        if characterIndex >= characterCount {
+            let extraLineHeight = layoutManager.extraLineFragmentRect.height
+            return extraLineHeight > 0 ? extraLineHeight : fallbackHeight
+        }
+
+        guard layoutManager.numberOfGlyphs > 0 else {
+            return fallbackHeight
+        }
+
+        let glyphIndex = min(layoutManager.numberOfGlyphs - 1, layoutManager.glyphIndexForCharacter(at: characterIndex))
+        return layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil).height
     }
 }
 

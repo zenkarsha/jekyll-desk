@@ -157,6 +157,27 @@ extension View {
     }
 }
 
+extension NSImage {
+    func zoomedAlertIcon(scale: CGFloat) -> NSImage {
+        let imageSize = size
+        let zoomedSize = NSSize(width: imageSize.width * scale, height: imageSize.height * scale)
+        let drawRect = NSRect(
+            x: (imageSize.width - zoomedSize.width) / 2,
+            y: (imageSize.height - zoomedSize.height) / 2,
+            width: zoomedSize.width,
+            height: zoomedSize.height
+        )
+        let image = NSImage(size: imageSize)
+
+        image.lockFocus()
+        NSGraphicsContext.current?.imageInterpolation = .high
+        draw(in: drawRect, from: .zero, operation: .copy, fraction: 1)
+        image.unlockFocus()
+
+        return image
+    }
+}
+
 struct AppSettingsDropdown: View {
     @Binding var selection: String
 

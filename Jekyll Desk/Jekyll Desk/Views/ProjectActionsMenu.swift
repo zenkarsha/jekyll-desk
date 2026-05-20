@@ -3,8 +3,6 @@ import AppKit
 
 struct ProjectActionsMenu: View {
     @ObservedObject var appVM: AppViewModel
-    @State private var projectPendingRemoval: Project?
-    @State private var removedProjectName: String?
 
     var body: some View {
         Menu {
@@ -12,7 +10,7 @@ struct ProjectActionsMenu: View {
             Button("Reveal _posts Folder", systemImage: "folder.badge.gearshape") { revealPosts() }
             Divider()
             Button(role: .destructive) {
-                projectPendingRemoval = appVM.projectVM.selectedProject
+                showRemoveConfirmation()
             } label: {
                 Label("Remove Project", systemImage: "trash")
             }
@@ -25,39 +23,6 @@ struct ProjectActionsMenu: View {
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
-        .alert("Remove Project?", isPresented: removeConfirmationBinding, presenting: projectPendingRemoval) { project in
-            Button("Cancel", role: .cancel) {
-                projectPendingRemoval = nil
-            }
-            Button("Remove", role: .destructive) {
-                removedProjectName = project.name
-                appVM.removeSelectedProject()
-                projectPendingRemoval = nil
-            }
-        } message: { project in
-            Text("Remove \"\(project.name)\" from Jekyll Desk? This will not delete the project folder or any files.")
-        }
-        .alert("Project Removed", isPresented: removalSuccessBinding) {
-            Button("OK", role: .cancel) {
-                removedProjectName = nil
-            }
-        } message: {
-            Text("\(removedProjectName ?? "Project") was removed from Jekyll Desk.")
-        }
-    }
-
-    private var removeConfirmationBinding: Binding<Bool> {
-        Binding(
-            get: { projectPendingRemoval != nil },
-            set: { if !$0 { projectPendingRemoval = nil } }
-        )
-    }
-
-    private var removalSuccessBinding: Binding<Bool> {
-        Binding(
-            get: { removedProjectName != nil },
-            set: { if !$0 { removedProjectName = nil } }
-        )
     }
 
     private func openProject() {
@@ -68,5 +33,36 @@ struct ProjectActionsMenu: View {
     private func revealPosts() {
         guard let project = appVM.projectVM.selectedProject else { return }
         NSWorkspace.shared.open(project.postsURL)
+    }
+
+    private func showRemoveConfirmation() {
+        guard let project = appVM.projectVM.selectedProject else { return }
+        let alert = NSAlert.removeProject(projectName: project.name)
+        guard alert.runModal() == .alertSecondButtonReturn else { return }
+
+        appVM.removeSelectedProject()
+        NSAlert.projectRemoved(projectName: project.name).runModal()
+    }
+}
+
+private extension NSAlert {
+    static func removeProject(projectName: String) -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = "Remove Project?"
+        alert.informativeText = "Remove \"\(projectName)\" from Jekyll Desk? This will not delete the project folder or any files."
+        alert.icon = NSApp.applicationIconImage.zoomedAlertIcon(scale: 1.18)
+        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: "Remove")
+        alert.buttons.last?.hasDestructiveAction = true
+        return alert
+    }
+
+    static func projectRemoved(projectName: String) -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = "Project Removed"
+        alert.informativeText = "\(projectName) was removed from Jekyll Desk."
+        alert.icon = NSApp.applicationIconImage.zoomedAlertIcon(scale: 1.18)
+        alert.addButton(withTitle: "OK")
+        return alert
     }
 }

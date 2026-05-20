@@ -13,7 +13,6 @@ struct MainWindowView: View {
             HStack(spacing: 0) {
                 ProjectSidebarView(appVM: appVM)
                     .frame(width: 368)
-                Divider()
                 if appVM.editorVM.layoutMode != .previewOnly {
                     MarkdownEditorView(appVM: appVM)
                         .frame(minWidth: appVM.editorVM.layoutMode == .editorOnly ? 860 : 410)

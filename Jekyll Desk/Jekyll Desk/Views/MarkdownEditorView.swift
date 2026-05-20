@@ -125,20 +125,14 @@ struct MarkdownEditorView: View {
     }
 
     private var markdownTextEditor: some View {
-        HStack(alignment: .top, spacing: 0) {
-            if appVM.editorVM.lineNumbers {
-                lineNumberGutter
+        SyntaxMarkdownTextView(text: Binding(
+            get: { appVM.editorVM.markdownContent },
+            set: {
+                appVM.editorVM.markdownContent = $0
             }
-
-            SyntaxMarkdownTextView(text: Binding(
-                get: { appVM.editorVM.markdownContent },
-                set: {
-                    appVM.editorVM.markdownContent = $0
-                }
-            ), project: appVM.projectVM.selectedProject, postFilename: appVM.editorVM.filename, postTitle: appVM.editorVM.title, postDate: appVM.editorVM.date, wordWrap: appVM.editorVM.wordWrap, fontSize: CGFloat(appVM.editorVM.fontSize), tabSize: appVM.editorVM.tabSize) { _ in }
-            .background(Color.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        ), project: appVM.projectVM.selectedProject, postFilename: appVM.editorVM.filename, postTitle: appVM.editorVM.title, postDate: appVM.editorVM.date, wordWrap: appVM.editorVM.wordWrap, showsLineNumbers: appVM.editorVM.lineNumbers, fontSize: CGFloat(appVM.editorVM.fontSize), tabSize: appVM.editorVM.tabSize) { _ in }
+        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var lineNumberGutter: some View {
@@ -160,11 +154,6 @@ struct MarkdownEditorView: View {
         }
         .frame(width: 44)
         .background(Color(red: 0.949, green: 0.957, blue: 0.969))
-        .overlay(alignment: .trailing) {
-            Rectangle()
-                .fill(Color.appBorder.opacity(0.75))
-                .frame(width: 1)
-        }
     }
 
     private var lockedEmptyEditor: some View {

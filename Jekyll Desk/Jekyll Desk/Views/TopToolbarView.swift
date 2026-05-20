@@ -99,6 +99,17 @@ struct TopToolbarView: View {
     }
 }
 
+private extension NSAlert {
+    static func previewInfo() -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = "Preview and Jekyll Serve"
+        alert.informativeText = "Run Jekyll Serve starts the configured command in the selected project. Auto Refresh saves markdown changes and reloads the WebView after a short debounce."
+        alert.icon = NSApp.applicationIconImage.zoomedAlertIcon(scale: 1.18)
+        alert.addButton(withTitle: "OK")
+        return alert
+    }
+}
+
 private struct EditorPreviewLayoutMenu: View {
     @ObservedObject var appVM: AppViewModel
 
@@ -244,15 +255,5 @@ private struct ProjectDropdownPopover: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-}
-
-private extension NSAlert {
-    static func previewInfo() -> NSAlert {
-        let alert = NSAlert()
-        alert.messageText = "Preview and Jekyll Serve"
-        alert.informativeText = "Run Jekyll Serve starts the configured command in the selected project. Auto Refresh saves markdown changes and reloads the WebView after a short debounce."
-        alert.addButton(withTitle: "OK")
-        return alert
     }
 }

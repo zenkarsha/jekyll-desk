@@ -135,8 +135,9 @@ struct MarkdownEditorView: View {
                 set: {
                     appVM.editorVM.markdownContent = $0
                 }
-            ), wordWrap: appVM.editorVM.wordWrap, fontSize: CGFloat(appVM.editorVM.fontSize), tabSize: appVM.editorVM.tabSize) { _ in }
+            ), project: appVM.projectVM.selectedProject, postFilename: appVM.editorVM.filename, postTitle: appVM.editorVM.title, postDate: appVM.editorVM.date, wordWrap: appVM.editorVM.wordWrap, fontSize: CGFloat(appVM.editorVM.fontSize), tabSize: appVM.editorVM.tabSize) { _ in }
             .background(Color.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

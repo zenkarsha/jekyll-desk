@@ -2,8 +2,8 @@ import SwiftUI
 
 struct SettingsPanelView: View {
     @ObservedObject var appVM: AppViewModel
-    @State private var serveCommand = "bundle exec jekyll serve"
-    @State private var autoStart = false
+    @State private var serveCommand = Project.defaultServeCommand
+    @State private var autoStart = Project.defaultAutoStartServerOnPostCreate
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,7 +38,9 @@ struct SettingsPanelView: View {
 
             Divider()
             HStack {
-                Button("Reset to Default") {}
+                Button("Reset to Default") {
+                    resetToDefault()
+                }
                     .buttonStyle(AppSecondaryButtonStyle(width: 148))
                 Spacer()
                 Button("Done") {
@@ -64,8 +66,8 @@ struct SettingsPanelView: View {
 
     private func loadProjectServeSettings() {
         guard let project = appVM.projectVM.selectedProject else {
-            serveCommand = "bundle exec jekyll serve 2>/dev/null"
-            autoStart = false
+            serveCommand = Project.defaultServeCommand
+            autoStart = Project.defaultAutoStartServerOnPostCreate
             return
         }
 
@@ -77,10 +79,17 @@ struct SettingsPanelView: View {
         guard var project = appVM.projectVM.selectedProject else { return }
 
         let command = serveCommand.trimmingCharacters(in: .whitespacesAndNewlines)
-        project.serveCommand = command.isEmpty ? "bundle exec jekyll serve 2>/dev/null" : command
+        project.serveCommand = command.isEmpty ? Project.defaultServeCommand : command
         project.autoStartServerOnPostCreate = autoStart
         appVM.projectVM.updateSelectedProject(project)
         appVM.syncPreviewURL()
+    }
+
+    private func resetToDefault() {
+        appVM.editorVM.resetSettingsToDefault()
+        serveCommand = Project.defaultServeCommand
+        autoStart = Project.defaultAutoStartServerOnPostCreate
+        saveProjectServeSettings()
     }
 
     private func group<Content: View>(_ title: String, showsDivider: Bool = true, @ViewBuilder content: () -> Content) -> some View {

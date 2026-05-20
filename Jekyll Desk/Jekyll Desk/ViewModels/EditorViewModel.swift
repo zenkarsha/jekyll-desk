@@ -9,6 +9,11 @@ enum EditorLayoutMode {
 
 @MainActor
 final class EditorViewModel: ObservableObject {
+    static let defaultWordWrap = true
+    static let defaultLineNumbers = true
+    static let defaultFontSize = 14
+    static let defaultTabSize = 2
+
     @Published var selectedTemplate: FrontMatterTemplate = .defaultPost
     @Published var formValues: [String: [String]] = [:]
     @Published var markdownContent: String = ""
@@ -16,8 +21,8 @@ final class EditorViewModel: ObservableObject {
     @Published var filepath: String?
     @Published var isSaved = true
     @Published var layoutMode: EditorLayoutMode = .editorAndPreview
-    @Published var wordWrap = true
-    @Published var lineNumbers = true
+    @Published var wordWrap = EditorViewModel.defaultWordWrap
+    @Published var lineNumbers = EditorViewModel.defaultLineNumbers
     @Published var fontSize: Int {
         didSet {
             UserDefaults.standard.set(fontSize, forKey: Self.fontSizeDefaultsKey)
@@ -210,6 +215,13 @@ final class EditorViewModel: ObservableObject {
         tabSize = Self.clampedTabSize(size)
     }
 
+    func resetSettingsToDefault() {
+        wordWrap = Self.defaultWordWrap
+        lineNumbers = Self.defaultLineNumbers
+        fontSize = Self.defaultFontSize
+        tabSize = Self.defaultTabSize
+    }
+
     private func normalizedValuesForGeneration() -> [String: [String]] {
         var values = formValues
         values["TITLE"] = [title]
@@ -270,11 +282,11 @@ final class EditorViewModel: ObservableObject {
     private static let tabSizeDefaultsKey = "JekyllDesk.editorTabSize"
 
     private static func clampedFontSize(_ size: Int) -> Int {
-        guard size > 0 else { return 14 }
+        guard size > 0 else { return defaultFontSize }
         return min(max(size, 12), 16)
     }
 
     private static func clampedTabSize(_ size: Int) -> Int {
-        [2, 4].contains(size) ? size : 2
+        [2, 4].contains(size) ? size : defaultTabSize
     }
 }

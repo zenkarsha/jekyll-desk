@@ -3,6 +3,10 @@ import AppKit
 
 struct SyntaxMarkdownTextView: NSViewRepresentable {
     @Binding var text: String
+    var project: Project?
+    var postFilename: String
+    var postTitle: String
+    var postDate: String
     var wordWrap: Bool
     var fontSize: CGFloat
     var tabSize: Int
@@ -26,11 +30,14 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         textView.allowsUndo = true
         textView.drawsBackground = true
         textView.backgroundColor = .white
-        textView.textContainerInset = NSSize(width: 16, height: 12)
         textView.textContainer?.lineFragmentPadding = 0
         textView.minSize = NSSize(width: 0, height: 0)
         textView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         textView.isVerticallyResizable = true
+        textView.registerForDraggedTypes([.fileURL])
+        textView.imageDropHandler = { [weak coordinator = context.coordinator] textView, sender in
+            coordinator?.handleImageDrop(in: textView, sender: sender) ?? false
+        }
         applyEditorSettings(to: textView, in: scrollView)
 
         scrollView.documentView = textView
@@ -45,6 +52,11 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
         guard let textView = scrollView.documentView as? NSTextView else { return }
         context.coordinator.parent = self
+        if let markdownTextView = textView as? MarkdownTextView {
+            markdownTextView.imageDropHandler = { [weak coordinator = context.coordinator] textView, sender in
+                coordinator?.handleImageDrop(in: textView, sender: sender) ?? false
+            }
+        }
         applyEditorSettings(to: textView, in: scrollView)
         if textView.string != text || context.coordinator.appliedFontSize != fontSize || context.coordinator.appliedTabSize != tabSize {
             context.coordinator.applyHighlighting(to: textView, text: text)
@@ -52,11 +64,12 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
     }
 
     private func applyEditorSettings(to textView: NSTextView, in scrollView: NSScrollView) {
-        applyWordWrap(wordWrap, to: textView, in: scrollView)
         if let markdownTextView = textView as? MarkdownTextView {
             markdownTextView.tabSize = tabSize
         }
+        textView.textContainerInset = NSSize(width: 16, height: 12)
         textView.defaultParagraphStyle = paragraphStyle(font: NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular))
+        applyWordWrap(wordWrap, to: textView, in: scrollView)
     }
 
     private func applyWordWrap(_ enabled: Bool, to textView: NSTextView, in scrollView: NSScrollView) {
@@ -67,14 +80,15 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         textView.autoresizingMask = enabled ? [.width] : []
 
         if enabled {
-            let wrapWidth = max(1, scrollView.contentSize.width - (textView.textContainerInset.width * 2) - 2)
-            textView.frame.size.width = scrollView.contentSize.width
+            let editorWidth = max(1, scrollView.contentView.bounds.width)
+            let wrapWidth = max(1, editorWidth - (textView.textContainerInset.width * 2))
+            textView.frame.size.width = editorWidth
             textContainer.containerSize = NSSize(
                 width: wrapWidth,
                 height: CGFloat.greatestFiniteMagnitude
             )
             textView.maxSize = NSSize(
-                width: scrollView.contentSize.width,
+                width: editorWidth,
                 height: CGFloat.greatestFiniteMagnitude
             )
         } else {
@@ -82,7 +96,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
                 width: CGFloat.greatestFiniteMagnitude,
                 height: CGFloat.greatestFiniteMagnitude
             )
-            textView.frame.size.width = max(scrollView.contentSize.width, textView.intrinsicContentSize.width)
+            textView.frame.size.width = max(scrollView.contentView.bounds.width, textView.intrinsicContentSize.width)
             textView.maxSize = NSSize(
                 width: CGFloat.greatestFiniteMagnitude,
                 height: CGFloat.greatestFiniteMagnitude
@@ -90,6 +104,7 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
         }
         textContainer.size = textContainer.containerSize
         textView.layoutManager?.ensureLayout(for: textContainer)
+        textView.needsDisplay = true
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
@@ -107,6 +122,39 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
             parent.text = textView.string
             parent.onChange(textView.string)
             applyHighlighting(to: textView, text: textView.string)
+        }
+
+        func handleImageDrop(in textView: NSTextView, sender: NSDraggingInfo) -> Bool {
+            guard let project = parent.project else { return false }
+            let urls = (sender.draggingPasteboard.readObjects(forClasses: [NSURL.self]) as? [NSURL] ?? [])
+                .map { $0 as URL }
+
+            do {
+                let imagePaths = try MarkdownFileService.importImages(
+                    urls,
+                    project: project,
+                    postFilename: parent.postFilename,
+                    title: parent.postTitle,
+                    date: parent.postDate
+                )
+                guard !imagePaths.isEmpty else { return false }
+
+                let insertionIndex = insertionIndex(for: sender, in: textView)
+                let markdown = imagePaths
+                    .map { "![alt text](\($0))" }
+                    .joined(separator: "\n")
+                let prefix = needsLeadingNewline(in: textView.string, insertionIndex: insertionIndex) ? "\n" : ""
+                let suffix = needsTrailingNewline(in: textView.string, insertionIndex: insertionIndex) ? "\n" : ""
+
+                textView.insertText(prefix + markdown + suffix, replacementRange: NSRange(location: insertionIndex, length: 0))
+                parent.text = textView.string
+                parent.onChange(textView.string)
+                applyHighlighting(to: textView, text: textView.string)
+                return true
+            } catch {
+                NSSound.beep()
+                return false
+            }
         }
 
         func applyHighlighting(to textView: NSTextView, text: String) {
@@ -146,6 +194,33 @@ struct SyntaxMarkdownTextView: NSViewRepresentable {
                 attributed.addAttribute(.foregroundColor, value: color, range: match.range)
             }
         }
+
+        private func insertionIndex(for sender: NSDraggingInfo, in textView: NSTextView) -> Int {
+            guard let layoutManager = textView.layoutManager, let textContainer = textView.textContainer else {
+                return textView.selectedRange().location
+            }
+
+            let dropPoint = textView.convert(sender.draggingLocation, from: nil)
+            let containerOrigin = textView.textContainerOrigin
+            let containerPoint = NSPoint(
+                x: dropPoint.x - containerOrigin.x,
+                y: dropPoint.y - containerOrigin.y
+            )
+            let glyphIndex = layoutManager.glyphIndex(for: containerPoint, in: textContainer)
+            return min(layoutManager.characterIndexForGlyph(at: glyphIndex), textView.string.utf16.count)
+        }
+
+        private func needsLeadingNewline(in text: String, insertionIndex: Int) -> Bool {
+            guard insertionIndex > 0 else { return false }
+            let nsText = text as NSString
+            return nsText.substring(with: NSRange(location: insertionIndex - 1, length: 1)) != "\n"
+        }
+
+        private func needsTrailingNewline(in text: String, insertionIndex: Int) -> Bool {
+            guard insertionIndex < text.utf16.count else { return false }
+            let nsText = text as NSString
+            return nsText.substring(with: NSRange(location: insertionIndex, length: 1)) != "\n"
+        }
     }
 
     private func paragraphStyle(font: NSFont) -> NSParagraphStyle {
@@ -172,8 +247,30 @@ private final class MarkdownScrollView: NSScrollView {
 
 private final class MarkdownTextView: NSTextView {
     var tabSize = 2
+    var imageDropHandler: ((MarkdownTextView, NSDraggingInfo) -> Bool)?
 
     override func insertTab(_ sender: Any?) {
         insertText(String(repeating: " ", count: tabSize), replacementRange: selectedRange())
+    }
+
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        hasImageURLs(sender) ? .copy : super.draggingEntered(sender)
+    }
+
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        hasImageURLs(sender) ? .copy : super.draggingUpdated(sender)
+    }
+
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        if hasImageURLs(sender), imageDropHandler?(self, sender) == true {
+            return true
+        }
+        return super.performDragOperation(sender)
+    }
+
+    private func hasImageURLs(_ sender: NSDraggingInfo) -> Bool {
+        let urls = (sender.draggingPasteboard.readObjects(forClasses: [NSURL.self]) as? [NSURL] ?? [])
+            .map { $0 as URL }
+        return urls.contains { ["apng", "avif", "gif", "jpeg", "jpg", "png", "svg", "webp"].contains($0.pathExtension.lowercased()) }
     }
 }

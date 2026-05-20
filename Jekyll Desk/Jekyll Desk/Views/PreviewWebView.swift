@@ -13,6 +13,7 @@ struct PreviewWebView: View {
     @State private var isWaitingForPreviewHTMLLoad = false
     @State private var hasPendingPreviewUpdate = false
     @State private var wasPreviewBuildInProgress = false
+    @State private var previewLoadTimeoutTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -52,7 +53,7 @@ struct PreviewWebView: View {
             syncPreviewURL()
         }
         .onChange(of: appVM.previewRefreshID) { _, _ in
-            isWaitingForPreviewHTMLLoad = true
+            beginWaitingForPreviewHTMLLoad()
             hasPendingPreviewUpdate = false
             syncPreviewURL()
         }
@@ -60,23 +61,26 @@ struct PreviewWebView: View {
             switch activity {
             case .saving, .building:
                 wasPreviewBuildInProgress = true
-                isWaitingForPreviewHTMLLoad = true
+                beginWaitingForPreviewHTMLLoad()
             case .idle:
                 guard wasPreviewBuildInProgress else { return }
                 wasPreviewBuildInProgress = false
                 if appVM.autoRefresh {
                     hasPendingPreviewUpdate = false
                 } else {
-                    isWaitingForPreviewHTMLLoad = false
+                    finishPreviewHTMLLoad()
                     hasPendingPreviewUpdate = appVM.serverVM.state == .running
                 }
             }
         }
         .onChange(of: appVM.autoRefresh) { _, enabled in
             if !enabled, isWaitingForPreviewHTMLLoad {
-                isWaitingForPreviewHTMLLoad = false
+                finishPreviewHTMLLoad()
                 hasPendingPreviewUpdate = appVM.serverVM.state == .running && hasEditablePost
             }
+        }
+        .onDisappear {
+            previewLoadTimeoutTask?.cancel()
         }
     }
 
@@ -201,7 +205,7 @@ struct PreviewWebView: View {
                     canGoForward: $canGoForward,
                     fallbackHTML: previewHTML,
                     onLoadFinished: {
-                        isWaitingForPreviewHTMLLoad = false
+                        finishPreviewHTMLLoad()
                         hasPendingPreviewUpdate = false
                     }
                 )
@@ -510,8 +514,24 @@ struct PreviewWebView: View {
 
     private func refreshPreview() {
         hasPendingPreviewUpdate = false
-        isWaitingForPreviewHTMLLoad = true
+        beginWaitingForPreviewHTMLLoad()
         appVM.reloadPreview()
+    }
+
+    private func beginWaitingForPreviewHTMLLoad() {
+        isWaitingForPreviewHTMLLoad = true
+        previewLoadTimeoutTask?.cancel()
+        previewLoadTimeoutTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 8_000_000_000)
+            guard !Task.isCancelled else { return }
+            isWaitingForPreviewHTMLLoad = false
+        }
+    }
+
+    private func finishPreviewHTMLLoad() {
+        previewLoadTimeoutTask?.cancel()
+        previewLoadTimeoutTask = nil
+        isWaitingForPreviewHTMLLoad = false
     }
 }
 
@@ -673,7 +693,12 @@ struct WebView: NSViewRepresentable {
             guard
                 retryCount < maxRetryCount,
                 let url = lastLoadedURL
-            else { return }
+            else {
+                DispatchQueue.main.async {
+                    self.parent.onLoadFinished()
+                }
+                return
+            }
 
             retryCount += 1
             let request = parent.noCacheRequest(for: parent.cacheBusted(url))

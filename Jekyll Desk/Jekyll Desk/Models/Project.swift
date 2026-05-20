@@ -1,14 +1,20 @@
 import Foundation
 
 struct Project: Identifiable, Codable, Hashable {
+    static let defaultPostsPath = "_posts"
+    static let defaultDraftsPath = "_drafts"
+    static let defaultAssetsPath = "assets"
+    static let defaultServeCommand = "bundle exec jekyll serve"
+    static let defaultAutoStartServerOnPostCreate = false
+
     var id: UUID = UUID()
     var name: String
     var path: String
-    var postsPath: String = "_posts"
-    var draftsPath: String = "_drafts"
-    var assetsPath: String = "assets"
-    var serveCommand: String = "bundle exec jekyll serve"
-    var autoStartServerOnPostCreate: Bool = false
+    var postsPath: String = Self.defaultPostsPath
+    var draftsPath: String = Self.defaultDraftsPath
+    var assetsPath: String = Self.defaultAssetsPath
+    var serveCommand: String = Self.defaultServeCommand
+    var autoStartServerOnPostCreate: Bool = Self.defaultAutoStartServerOnPostCreate
     var templates: [FrontMatterTemplate] = FrontMatterTemplate.defaults
     var defaultTemplateID: UUID? = FrontMatterTemplate.defaultPost.id
 
@@ -29,11 +35,11 @@ struct Project: Identifiable, Codable, Hashable {
         id: UUID = UUID(),
         name: String,
         path: String,
-        postsPath: String = "_posts",
-        draftsPath: String = "_drafts",
-        assetsPath: String = "assets",
-        serveCommand: String = "bundle exec jekyll serve",
-        autoStartServerOnPostCreate: Bool = false,
+        postsPath: String = Self.defaultPostsPath,
+        draftsPath: String = Self.defaultDraftsPath,
+        assetsPath: String = Self.defaultAssetsPath,
+        serveCommand: String = Self.defaultServeCommand,
+        autoStartServerOnPostCreate: Bool = Self.defaultAutoStartServerOnPostCreate,
         templates: [FrontMatterTemplate] = FrontMatterTemplate.defaults,
         defaultTemplateID: UUID? = FrontMatterTemplate.defaultPost.id
     ) {
@@ -54,11 +60,11 @@ struct Project: Identifiable, Codable, Hashable {
         id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
         name = try container.decode(String.self, forKey: .name)
         path = try container.decode(String.self, forKey: .path)
-        postsPath = try container.decodeIfPresent(String.self, forKey: .postsPath) ?? "_posts"
-        draftsPath = try container.decodeIfPresent(String.self, forKey: .draftsPath) ?? "_drafts"
-        assetsPath = try container.decodeIfPresent(String.self, forKey: .assetsPath) ?? "assets"
-        serveCommand = try container.decodeIfPresent(String.self, forKey: .serveCommand) ?? "bundle exec jekyll serve"
-        autoStartServerOnPostCreate = try container.decodeIfPresent(Bool.self, forKey: .autoStartServerOnPostCreate) ?? false
+        postsPath = try container.decodeIfPresent(String.self, forKey: .postsPath) ?? Self.defaultPostsPath
+        draftsPath = try container.decodeIfPresent(String.self, forKey: .draftsPath) ?? Self.defaultDraftsPath
+        assetsPath = try container.decodeIfPresent(String.self, forKey: .assetsPath) ?? Self.defaultAssetsPath
+        serveCommand = try container.decodeIfPresent(String.self, forKey: .serveCommand) ?? Self.defaultServeCommand
+        autoStartServerOnPostCreate = try container.decodeIfPresent(Bool.self, forKey: .autoStartServerOnPostCreate) ?? Self.defaultAutoStartServerOnPostCreate
         templates = try container.decodeIfPresent([FrontMatterTemplate].self, forKey: .templates) ?? FrontMatterTemplate.defaults
         defaultTemplateID = try container.decodeIfPresent(UUID.self, forKey: .defaultTemplateID)
     }
